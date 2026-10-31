@@ -1,0 +1,297 @@
+version: "1.0"
+pipeline: "ecommerce_revenue_observability"
+
+# Metric catalog with node, group, name, kind (volume | ratio | lag | share)
+# Every metric belongs to exactly ONE of the groups: [orders, items, payments, totals, mart]
+
+metrics:
+  # ============================================================================
+  # GROUP: orders
+  # ============================================================================
+  - node: "raw_orders"
+    group: "orders"
+    name: "orders_row_count"
+    kind: "volume"
+    description: "Total landed order records count in batch"
+
+  - node: "raw_orders"
+    group: "orders"
+    name: "orders_distinct_key_ratio"
+    kind: "ratio"
+    description: "Ratio of distinct order_id to total rows"
+
+  - node: "raw_orders"
+    group: "orders"
+    name: "orders_null_rate_customer_id"
+    kind: "ratio"
+    description: "Fraction of rows with null customer_id"
+
+  - node: "raw_orders"
+    group: "orders"
+    name: "orders_null_rate_state"
+    kind: "ratio"
+    description: "Fraction of rows with null state"
+
+  - node: "raw_orders"
+    group: "orders"
+    name: "orders_null_rate_status"
+    kind: "ratio"
+    description: "Fraction of rows with null status"
+
+  - node: "raw_orders"
+    group: "orders"
+    name: "orders_arrival_lag_p50"
+    kind: "lag"
+    description: "Median landing lag in minutes for raw orders"
+
+  - node: "raw_orders"
+    group: "orders"
+    name: "orders_state_share"
+    kind: "share"
+    description: "Order count share per state dimension"
+
+  - node: "raw_orders"
+    group: "orders"
+    name: "orders_state_sum"
+    kind: "volume"
+    description: "Order count sum per state dimension"
+
+  # ============================================================================
+  # GROUP: items
+  # ============================================================================
+  - node: "raw_items"
+    group: "items"
+    name: "items_row_count"
+    kind: "volume"
+    description: "Total landed item records count in batch"
+
+  - node: "raw_items"
+    group: "items"
+    name: "items_distinct_key_ratio"
+    kind: "ratio"
+    description: "Ratio of distinct item_id to total rows"
+
+  - node: "raw_items"
+    group: "items"
+    name: "items_null_rate_category"
+    kind: "ratio"
+    description: "Fraction of rows with null category"
+
+  - node: "raw_items"
+    group: "items"
+    name: "items_null_rate_price"
+    kind: "ratio"
+    description: "Fraction of rows with null price"
+
+  - node: "raw_items"
+    group: "items"
+    name: "items_null_rate_freight"
+    kind: "ratio"
+    description: "Fraction of rows with null freight"
+
+  - node: "raw_items"
+    group: "items"
+    name: "items_arrival_lag_p50"
+    kind: "lag"
+    description: "Median landing lag in minutes for raw items"
+
+  - node: "raw_items"
+    group: "items"
+    name: "items_price_mean"
+    kind: "volume"
+    description: "Mean item price"
+
+  - node: "raw_items"
+    group: "items"
+    name: "items_price_p50"
+    kind: "volume"
+    description: "Median (p50) item price"
+
+  - node: "raw_items"
+    group: "items"
+    name: "items_price_p95"
+    kind: "volume"
+    description: "95th percentile item price"
+
+  - node: "raw_items"
+    group: "items"
+    name: "items_freight_mean"
+    kind: "volume"
+    description: "Mean item freight cost"
+
+  - node: "raw_items"
+    group: "items"
+    name: "items_freight_p50"
+    kind: "volume"
+    description: "Median (p50) item freight cost"
+
+  - node: "raw_items"
+    group: "items"
+    name: "items_freight_p95"
+    kind: "volume"
+    description: "95th percentile item freight cost"
+
+  - node: "raw_items"
+    group: "items"
+    name: "items_category_share"
+    kind: "share"
+    description: "Item count share per category dimension"
+
+  - node: "raw_items"
+    group: "items"
+    name: "items_category_sum"
+    kind: "volume"
+    description: "Total price sum per category dimension"
+
+  # ============================================================================
+  # GROUP: payments
+  # ============================================================================
+  - node: "raw_payments"
+    group: "payments"
+    name: "payments_row_count"
+    kind: "volume"
+    description: "Total landed payment records count in batch"
+
+  - node: "raw_payments"
+    group: "payments"
+    name: "payments_distinct_key_ratio"
+    kind: "ratio"
+    description: "Ratio of distinct order_id to total payment rows"
+
+  - node: "raw_payments"
+    group: "payments"
+    name: "payments_null_rate_payment_type"
+    kind: "ratio"
+    description: "Fraction of rows with null payment_type"
+
+  - node: "raw_payments"
+    group: "payments"
+    name: "payments_null_rate_payment_value"
+    kind: "ratio"
+    description: "Fraction of rows with null payment_value"
+
+  - node: "raw_payments"
+    group: "payments"
+    name: "payments_arrival_lag_p50"
+    kind: "lag"
+    description: "Median landing lag in minutes for raw payments"
+
+  - node: "raw_payments"
+    group: "payments"
+    name: "payments_value_mean"
+    kind: "volume"
+    description: "Mean payment value"
+
+  - node: "raw_payments"
+    group: "payments"
+    name: "payments_value_p50"
+    kind: "volume"
+    description: "Median (p50) payment value"
+
+  - node: "raw_payments"
+    group: "payments"
+    name: "payments_value_p95"
+    kind: "volume"
+    description: "95th percentile payment value"
+
+  - node: "raw_payments"
+    group: "payments"
+    name: "payments_type_share"
+    kind: "share"
+    description: "Payment volume share per payment_type dimension"
+
+  - node: "raw_payments"
+    group: "payments"
+    name: "payments_type_sum"
+    kind: "volume"
+    description: "Payment value sum per payment_type dimension"
+
+  # ============================================================================
+  # GROUP: totals (Cross-table invariants & Reconciliation)
+  # ============================================================================
+  - node: "int_order_totals"
+    group: "totals"
+    name: "payments_to_items_ratio"
+    kind: "ratio"
+    description: "Ratio of sum(payment_value) to sum(price + freight)"
+
+  - node: "int_order_totals"
+    group: "totals"
+    name: "orders_with_payment_rate"
+    kind: "ratio"
+    description: "Fraction of landed orders having matching payment"
+
+  - node: "int_order_totals"
+    group: "totals"
+    name: "orphan_item_rate"
+    kind: "ratio"
+    description: "Fraction of items without matching order in batch"
+
+  - node: "int_order_totals"
+    group: "totals"
+    name: "orphan_payment_rate"
+    kind: "ratio"
+    description: "Fraction of payments without matching order in batch"
+
+  - node: "int_order_totals"
+    group: "totals"
+    name: "items_per_order"
+    kind: "ratio"
+    description: "Average number of items per order"
+
+  - node: "raw_orders"
+    group: "totals"
+    name: "control_total_gap_rows_orders"
+    kind: "volume"
+    description: "Row count difference between landed orders and pre-injection control totals"
+
+  - node: "raw_items"
+    group: "totals"
+    name: "control_total_gap_rows_items"
+    kind: "volume"
+    description: "Row count difference between landed items and pre-injection control totals"
+
+  - node: "raw_items"
+    group: "totals"
+    name: "control_total_gap_value_items"
+    kind: "volume"
+    description: "Value sum difference between landed items and pre-injection control totals"
+
+  - node: "raw_payments"
+    group: "totals"
+    name: "control_total_gap_rows_payments"
+    kind: "volume"
+    description: "Row count difference between landed payments and pre-injection control totals"
+
+  - node: "raw_payments"
+    group: "totals"
+    name: "control_total_gap_value_payments"
+    kind: "volume"
+    description: "Value sum difference between landed payments and pre-injection control totals"
+
+  # ============================================================================
+  # GROUP: mart
+  # ============================================================================
+  - node: "mart_revenue_hourly"
+    group: "mart"
+    name: "mart_hourly_revenue"
+    kind: "volume"
+    description: "Total revenue rolled up in hourly mart"
+
+  - node: "mart_revenue_hourly"
+    group: "mart"
+    name: "mart_order_count"
+    kind: "volume"
+    description: "Distinct order count in hourly mart"
+
+  - node: "mart_revenue_hourly"
+    group: "mart"
+    name: "mart_total_items"
+    kind: "volume"
+    description: "Total item quantity rolled up in hourly mart"
+
+  - node: "mart_revenue_hourly"
+    group: "mart"
+    name: "mart_aov"
+    kind: "ratio"
+    description: "Hourly average order value (revenue / order_count)"

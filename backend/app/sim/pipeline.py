@@ -407,6 +407,156 @@ class PipelineEngine:
         for f in failures:
             self.event_logger.record_true_cause(f)
 
+    def ingest_range(
+        self,
+        start_hour: int,
+        end_hour: int,
+        chunk_size: int = 48,
+    ):
+        """
+        Ingests a range of clean hours [start_hour, end_hour) into DuckDB.
+        Optimized with chunked batches for sub-second execution across hundreds of days.
+        """
+        for c_start in range(start_hour, end_hour, chunk_size):
+            c_end = min(c_start + chunk_size, end_hour)
+            orders_list = []
+            items_list = []
+            payments_list = []
+            ctrl_records = []
+
+            for h in range(c_start, c_end):
+                o, i, p = generate_hourly_batch(h, master_seed=self.master_seed)
+                orders_list.append(o)
+                items_list.append(i)
+                payments_list.append(p)
+
+                ctrl_records.append((h, "raw_orders", len(o), 0.0))
+                ctrl_records.append((h, "raw_items", len(i), float(i["price"].sum() + i["freight"].sum())))
+                ctrl_records.append((h, "raw_payments", len(p), float(p["payment_value"].sum())))
+
+            self.con.executemany("INSERT OR REPLACE INTO control_totals VALUES (?, ?, ?, ?)", ctrl_records)
+
+            chunk_orders = pd.concat(orders_list, ignore_index=True)
+            chunk_items = pd.concat(items_list, ignore_index=True)
+            chunk_payments = pd.concat(payments_list, ignore_index=True)
+
+            self.con.register("tmp_chunk_orders", chunk_orders)
+            self.con.register("tmp_chunk_items", chunk_items)
+            self.con.register("tmp_chunk_payments", chunk_payments)
+
+            self.con.execute("INSERT INTO raw_orders SELECT * FROM tmp_chunk_orders")
+            self.con.execute("INSERT INTO raw_items SELECT * FROM tmp_chunk_items")
+            self.con.execute("INSERT INTO raw_payments SELECT * FROM tmp_chunk_payments")
+
+            # Staging: deduplication within batch_hour
+            self.con.execute("""
+                INSERT INTO stg_orders
+                SELECT DISTINCT
+                    CAST(order_id AS VARCHAR),
+                    CAST(customer_id AS VARCHAR),
+                    CAST(state AS VARCHAR),
+                    CAST(status AS VARCHAR),
+                    CAST(event_ts AS TIMESTAMP),
+                    CAST(landed_ts AS TIMESTAMP),
+                    CAST(batch_hour AS INTEGER)
+                FROM raw_orders
+                WHERE batch_hour BETWEEN ? AND ?
+            """, [c_start, c_end - 1])
+
+            self.con.execute("""
+                INSERT INTO stg_items
+                SELECT DISTINCT
+                    CAST(order_id AS VARCHAR),
+                    CAST(item_id AS VARCHAR),
+                    CAST(category AS VARCHAR),
+                    CAST(price AS DOUBLE),
+                    CAST(freight AS DOUBLE),
+                    CAST(event_ts AS TIMESTAMP),
+                    CAST(landed_ts AS TIMESTAMP),
+                    CAST(batch_hour AS INTEGER)
+                FROM raw_items
+                WHERE batch_hour BETWEEN ? AND ?
+            """, [c_start, c_end - 1])
+
+            self.con.execute("""
+                INSERT INTO stg_payments
+                SELECT DISTINCT
+                    CAST(order_id AS VARCHAR),
+                    CAST(payment_type AS VARCHAR),
+                    CAST(payment_value AS DOUBLE),
+                    CAST(event_ts AS TIMESTAMP),
+                    CAST(landed_ts AS TIMESTAMP),
+                    CAST(batch_hour AS INTEGER)
+                FROM raw_payments
+                WHERE batch_hour BETWEEN ? AND ?
+            """, [c_start, c_end - 1])
+
+            # Intermediate: int_order_totals
+            self.con.execute("""
+                WITH pre_agg_items AS (
+                    SELECT
+                        order_id,
+                        batch_hour,
+                        SUM(price + freight) AS items_total,
+                        COUNT(*) AS n_items
+                    FROM stg_items
+                    WHERE batch_hour BETWEEN ? AND ?
+                    GROUP BY order_id, batch_hour
+                )
+                INSERT INTO int_order_totals
+                SELECT
+                    p.batch_hour,
+                    p.order_id,
+                    CAST(COALESCE(i.items_total, 0.0) AS DOUBLE) AS items_total,
+                    CAST(COALESCE(i.n_items, 0) AS INTEGER) AS n_items,
+                    CAST(p.payment_value AS DOUBLE) AS payment_value,
+                    CAST(p.payment_type AS VARCHAR) AS payment_type
+                FROM stg_payments p
+                LEFT JOIN pre_agg_items i ON p.order_id = i.order_id AND p.batch_hour = i.batch_hour
+                WHERE p.batch_hour BETWEEN ? AND ?
+            """, [c_start, c_end - 1, c_start, c_end - 1])
+
+            # Mart: mart_revenue_hourly
+            self.con.execute("""
+                INSERT OR REPLACE INTO mart_revenue_hourly
+                SELECT
+                    batch_hour,
+                    CAST(SUM(payment_value) AS DOUBLE) AS revenue,
+                    COUNT(DISTINCT order_id) AS order_count,
+                    CAST(SUM(n_items) AS BIGINT) AS total_items
+                FROM int_order_totals
+                WHERE batch_hour BETWEEN ? AND ?
+                GROUP BY batch_hour
+            """, [c_start, c_end - 1])
+
+            # KPI: daily revenue & AOV
+            start_day = c_start // HOURS_PER_DAY
+            end_day = (c_end - 1) // HOURS_PER_DAY
+            self.con.execute("""
+                INSERT OR REPLACE INTO kpi_daily_revenue
+                SELECT
+                    CAST(FLOOR(batch_hour / 24) AS INTEGER) AS batch_day,
+                    CAST(SUM(revenue) AS DOUBLE) AS daily_revenue,
+                    CAST(SUM(order_count) AS BIGINT) AS daily_orders,
+                    CAST(SUM(total_items) AS BIGINT) AS daily_items
+                FROM mart_revenue_hourly
+                WHERE CAST(FLOOR(batch_hour / 24) AS INTEGER) BETWEEN ? AND ?
+                GROUP BY CAST(FLOOR(batch_hour / 24) AS INTEGER)
+            """, [start_day, end_day])
+
+            self.con.execute("""
+                INSERT OR REPLACE INTO kpi_aov
+                SELECT
+                    batch_day,
+                    CASE WHEN daily_orders > 0 THEN daily_revenue / daily_orders ELSE 0.0 END AS aov
+                FROM kpi_daily_revenue
+                WHERE batch_day BETWEEN ? AND ?
+            """, [start_day, end_day])
+
+            self.con.unregister("tmp_chunk_orders")
+            self.con.unregister("tmp_chunk_items")
+            self.con.unregister("tmp_chunk_payments")
+
     def get_table_counts(self) -> Dict[str, int]:
         """Return row counts for all tables across the pipeline."""
         tables = [
