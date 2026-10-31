@@ -1,0 +1,120 @@
+version: "1.0"
+pipeline: "ecommerce_revenue_observability"
+
+nodes:
+  # RAW LAYER
+  raw_orders:
+    layer: raw
+    description: "Raw order landing events from ingestion stream"
+    dependencies: []
+    columns:
+      - name: order_id
+        type: VARCHAR
+      - name: customer_id
+        type: VARCHAR
+      - name: state
+        type: VARCHAR
+      - name: status
+        type: VARCHAR
+      - name: event_ts
+        type: TIMESTAMP
+      - name: landed_ts
+        type: TIMESTAMP
+      - name: batch_hour
+        type: INTEGER
+
+  raw_items:
+    layer: raw
+    description: "Raw order items landing events"
+    dependencies: []
+    columns:
+      - name: order_id
+        type: VARCHAR
+      - name: item_id
+        type: VARCHAR
+      - name: category
+        type: VARCHAR
+      - name: price
+        type: DOUBLE
+      - name: freight
+        type: DOUBLE
+      - name: event_ts
+        type: TIMESTAMP
+      - name: landed_ts
+        type: TIMESTAMP
+      - name: batch_hour
+        type: INTEGER
+
+  raw_payments:
+    layer: raw
+    description: "Raw payment transactions landing events"
+    dependencies: []
+    columns:
+      - name: order_id
+        type: VARCHAR
+      - name: payment_type
+        type: VARCHAR
+      - name: payment_value
+        type: DOUBLE
+      - name: event_ts
+        type: TIMESTAMP
+      - name: landed_ts
+        type: TIMESTAMP
+      - name: batch_hour
+        type: INTEGER
+
+  # STAGING LAYER
+  stg_orders:
+    layer: staging
+    description: "Type-cast orders with within-batch exact-duplicate deduplication"
+    dependencies:
+      - raw_orders
+    transformation: "deduplicate_and_cast"
+
+  stg_items:
+    layer: staging
+    description: "Type-cast order items with within-batch exact-duplicate deduplication"
+    dependencies:
+      - raw_items
+    transformation: "deduplicate_and_cast"
+
+  stg_payments:
+    layer: staging
+    description: "Type-cast payments with within-batch exact-duplicate deduplication"
+    dependencies:
+      - raw_payments
+    transformation: "deduplicate_and_cast"
+
+  # INTERMEDIATE LAYER
+  int_order_totals:
+    layer: intermediate
+    description: "Pre-aggregated item totals joined with orders and payments per order"
+    dependencies:
+      - stg_orders
+      - stg_items
+      - stg_payments
+    transformation: "left_join_preaggregated_items"
+
+  # MART LAYER
+  mart_revenue_hourly:
+    layer: mart
+    description: "Hourly revenue rollups summed across order totals"
+    dependencies:
+      - int_order_totals
+    transformation: "sum_revenue_by_batch_hour"
+
+  # KPI LAYER
+  kpi_daily_revenue:
+    layer: kpi
+    description: "Daily aggregated revenue KPIs"
+    dependencies:
+      - mart_revenue_hourly
+    transformation: "aggregate_daily_revenue"
+
+  kpi_aov:
+    layer: kpi
+    description: "Daily Average Order Value KPI"
+    dependencies:
+      - int_order_totals
+      - mart_revenue_hourly
+    transformation: "calculate_aov"

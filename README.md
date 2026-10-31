@@ -18,17 +18,30 @@ Exathon is a high-performance data engineering and pipeline observability platfo
 Exathon/
 ├── .gitignore               # Git ignore rules for Python, Node, DBs, and env files
 ├── README.md                # Project documentation and quickstart instructions
+├── config/
+│   └── lineage.yaml         # Declarative pipeline DAG lineage specification
 ├── scripts/
 │   └── doctor.py            # Diagnostic script verifying runtime, deps, node/npm
 ├── backend/
 │   ├── .venv/               # Pinned Python virtual environment
 │   ├── requirements.txt     # Pinned production and test dependencies
+│   ├── config/
+│   │   └── lineage.yaml     # Packaged DAG lineage declaration
 │   ├── app/
 │   │   ├── __init__.py
-│   │   └── main.py          # FastAPI application with /api/health & CORS
+│   │   ├── main.py          # FastAPI application with /api/health & CORS
+│   │   └── sim/             # Phase 1 simulation package
+│   │       ├── __init__.py
+│   │       ├── config.py    # Calendar, profiles, promo days, weights
+│   │       ├── generator.py # Vectorized hourly data generator
+│   │       ├── failures.py  # 9 failure injectors & 2 hard negatives
+│   │       ├── event_log.py # SQLite event logger & decoy ops generator
+│   │       ├── pipeline.py  # DuckDB pipeline DAG & control totals
+│   │       └── demo_check.py# Demo comparison & performance benchmark
 │   └── tests/
 │       ├── __init__.py
-│       └── test_health.py   # Pytest smoke test for health endpoint
+│       ├── test_health.py   # Pytest smoke test for health endpoint
+│       └── test_phase1.py   # Comprehensive Phase 1 test suite
 ├── frontend/
 │   ├── index.html           # HTML shell
 │   ├── package.json         # Pinned frontend dependencies and scripts
@@ -42,7 +55,8 @@ Exathon/
 │       ├── index.css        # Tailwind style directives
 │       └── vite-env.d.ts    # Vite client types
 └── docs/
-    └── phase-0-report.md    # Phase 0 verification report
+    ├── phase-0-report.md    # Phase 0 verification report
+    └── phase-1-report.md    # Phase 1 verification report
 ```
 
 ---
@@ -161,11 +175,15 @@ API requests to `/api/*` are automatically proxied to `http://localhost:8000`.
    ```bash
    python scripts/doctor.py
    ```
-2. **Backend Smoke Test**:
+2. **Backend Unit & Integration Test Suite**:
    ```bash
    cd backend && python -m pytest -q
    ```
-3. **Frontend Typecheck & Build**:
+3. **Simulation Pipeline & Failure Injection Demo**:
+   ```bash
+   cd backend && python -m app.sim.demo_check
+   ```
+4. **Frontend Typecheck & Production Build**:
    ```bash
    cd frontend && npx tsc --noEmit && npm run build
    ```
