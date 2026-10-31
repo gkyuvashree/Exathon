@@ -1,0 +1,93 @@
+﻿version: "1.0"
+description: "Evaluation scenario parameters and parameter ranges for DEV and TEST splits."
+
+scenario_duration_hours: 48
+warmup_hours: 12
+failure_duration_hours: 12
+
+failure_types:
+  - unit_scale_slice
+  - partial_load
+  - duplicate_replay
+  - stale_source
+  - schema_drift_nulls
+  - default_fill
+  - timezone_shift
+  - orphan_keys
+  - join_fanout
+
+hard_negatives:
+  - promo_surge
+  - category_flash_sale
+
+dev:
+  seed_range: [0, 99]
+  ranges:
+    unit_scale_slice:
+      scale: [0.01, 0.1]
+      payment_types: ["voucher", "wallet", "credit_card", "debit_card"]
+    partial_load:
+      drop_ratio: [0.20, 0.50]
+      tables: ["orders", "items", "payments"]
+    duplicate_replay:
+      target_tables: ["payments"]
+    stale_source:
+      k_hours: [2, 6]
+    schema_drift_nulls:
+      null_ratio: [0.30, 0.70]
+      columns:
+        orders: ["customer_id", "state", "status"]
+        items: ["category", "price", "freight"]
+        payments: ["payment_type", "payment_value"]
+    default_fill:
+      fill_ratio: [0.30, 0.70]
+      target_column: "freight"
+    timezone_shift:
+      shift_hours: [3.0, 8.0]
+      tables: ["orders", "items", "payments"]
+    orphan_keys:
+      corruption_ratio: [0.15, 0.45]
+      tables: ["items", "payments"]
+    join_fanout:
+      severity: [1.0, 1.0]
+    promo_surge:
+      multiplier: [2.0, 3.0]
+    category_flash_sale:
+      multiplier: [2.0, 4.0]
+      categories: ["electronics", "apparel", "home_kitchen", "beauty", "books", "sports"]
+
+test:
+  seed_range: [1000, 1199]
+  ranges:
+    unit_scale_slice:
+      scale: [0.05, 0.2]
+      payment_types: ["voucher", "wallet", "credit_card", "debit_card"]
+    partial_load:
+      drop_ratio: [0.10, 0.30]
+      tables: ["orders", "items", "payments"]
+    duplicate_replay:
+      target_tables: ["payments"]
+    stale_source:
+      k_hours: [1, 3]
+    schema_drift_nulls:
+      null_ratio: [0.15, 0.40]
+      columns:
+        orders: ["customer_id", "state", "status"]
+        items: ["category", "price", "freight"]
+        payments: ["payment_type", "payment_value"]
+    default_fill:
+      fill_ratio: [0.15, 0.40]
+      target_column: "freight"
+    timezone_shift:
+      shift_hours: [1.5, 4.5]
+      tables: ["orders", "items", "payments"]
+    orphan_keys:
+      corruption_ratio: [0.08, 0.25]
+      tables: ["items", "payments"]
+    join_fanout:
+      severity: [1.0, 1.0]
+    promo_surge:
+      multiplier: [1.5, 2.5]
+    category_flash_sale:
+      multiplier: [1.5, 2.5]
+      categories: ["electronics", "apparel", "home_kitchen", "beauty", "books", "sports"]

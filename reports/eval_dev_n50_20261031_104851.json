@@ -1,0 +1,483 @@
+{
+  "timestamp": "2026-10-31T10:48:51.846720+00:00",
+  "split": "dev",
+  "n_seeds": 50,
+  "elapsed_seconds": 2602.58445,
+  "methods": {
+    "plumbline": {
+      "event_precision": 0.8793503480278422,
+      "event_recall": 0.8422222222222222,
+      "event_f1": 0.8603859250851306,
+      "total_failures": 450,
+      "detected_failures": 379,
+      "mean_delay_hours": 0.2532981530343008,
+      "median_delay_hours": 0.0,
+      "false_alarms_per_week": 0.2153846153846154,
+      "hard_negative_fpr": 0.51,
+      "hard_negative_count": 100,
+      "per_failure": {
+        "default_fill": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 0.0,
+          "median_delay": 0.0
+        },
+        "duplicate_replay": {
+          "count": 50,
+          "detected": 0,
+          "recall": 0.0,
+          "mean_delay": null,
+          "median_delay": null
+        },
+        "join_fanout": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 1.36,
+          "median_delay": 1.0
+        },
+        "orphan_keys": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 0.0,
+          "median_delay": 0.0
+        },
+        "partial_load": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 0.0,
+          "median_delay": 0.0
+        },
+        "schema_drift_nulls": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 0.28,
+          "median_delay": 0.0
+        },
+        "stale_source": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 0.0,
+          "median_delay": 0.0
+        },
+        "timezone_shift": {
+          "count": 50,
+          "detected": 29,
+          "recall": 0.58,
+          "mean_delay": 0.4827586206896552,
+          "median_delay": 0.0
+        },
+        "unit_scale_slice": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 0.0,
+          "median_delay": 0.0
+        }
+      },
+      "confidence_intervals": {
+        "precision_ci": [
+          0.8501141686182669,
+          0.9097387173396675
+        ],
+        "recall_ci": [
+          0.8071709542915585,
+          0.8744724025974027
+        ],
+        "f1_ci": [
+          0.8348528946535906,
+          0.8849945235487403
+        ],
+        "mean_delay_ci": [
+          0.19790025684931506,
+          0.3105263157894737
+        ]
+      }
+    },
+    "static_threshold": {
+      "event_precision": 0.75,
+      "event_recall": 1.0,
+      "event_f1": 0.8571428571428571,
+      "total_failures": 450,
+      "detected_failures": 450,
+      "mean_delay_hours": 6.66,
+      "median_delay_hours": 6.5,
+      "false_alarms_per_week": 93.21846153846153,
+      "hard_negative_fpr": 1.0,
+      "hard_negative_count": 100,
+      "per_failure": {
+        "default_fill": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 7.72,
+          "median_delay": 7.0
+        },
+        "duplicate_replay": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 7.72,
+          "median_delay": 7.0
+        },
+        "join_fanout": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 7.72,
+          "median_delay": 7.0
+        },
+        "orphan_keys": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 7.72,
+          "median_delay": 7.0
+        },
+        "partial_load": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 5.9,
+          "median_delay": 6.0
+        },
+        "schema_drift_nulls": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 7.72,
+          "median_delay": 7.0
+        },
+        "stale_source": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 0.0,
+          "median_delay": 0.0
+        },
+        "timezone_shift": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 7.72,
+          "median_delay": 7.0
+        },
+        "unit_scale_slice": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 7.72,
+          "median_delay": 7.0
+        }
+      },
+      "confidence_intervals": {
+        "precision_ci": [
+          0.715,
+          0.785
+        ],
+        "recall_ci": [
+          1.0,
+          1.0
+        ],
+        "f1_ci": [
+          0.8338192419825073,
+          0.8795518207282913
+        ],
+        "mean_delay_ci": [
+          6.307586206896551,
+          7.013027642610072
+        ]
+      }
+    },
+    "univariate_seasonal": {
+      "event_precision": 0.5517241379310345,
+      "event_recall": 0.21333333333333335,
+      "event_f1": 0.3076923076923077,
+      "total_failures": 450,
+      "detected_failures": 96,
+      "mean_delay_hours": 1.7916666666666667,
+      "median_delay_hours": 0.0,
+      "false_alarms_per_week": 3.769230769230769,
+      "hard_negative_fpr": 0.52,
+      "hard_negative_count": 100,
+      "per_failure": {
+        "default_fill": {
+          "count": 50,
+          "detected": 4,
+          "recall": 0.08,
+          "mean_delay": 5.25,
+          "median_delay": 6.0
+        },
+        "duplicate_replay": {
+          "count": 50,
+          "detected": 4,
+          "recall": 0.08,
+          "mean_delay": 5.25,
+          "median_delay": 6.0
+        },
+        "join_fanout": {
+          "count": 50,
+          "detected": 4,
+          "recall": 0.08,
+          "mean_delay": 5.25,
+          "median_delay": 6.0
+        },
+        "orphan_keys": {
+          "count": 50,
+          "detected": 4,
+          "recall": 0.08,
+          "mean_delay": 5.25,
+          "median_delay": 6.0
+        },
+        "partial_load": {
+          "count": 50,
+          "detected": 18,
+          "recall": 0.36,
+          "mean_delay": 1.3888888888888888,
+          "median_delay": 0.0
+        },
+        "schema_drift_nulls": {
+          "count": 50,
+          "detected": 4,
+          "recall": 0.08,
+          "mean_delay": 5.25,
+          "median_delay": 6.0
+        },
+        "stale_source": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 0.0,
+          "median_delay": 0.0
+        },
+        "timezone_shift": {
+          "count": 50,
+          "detected": 4,
+          "recall": 0.08,
+          "mean_delay": 5.25,
+          "median_delay": 6.0
+        },
+        "unit_scale_slice": {
+          "count": 50,
+          "detected": 4,
+          "recall": 0.08,
+          "mean_delay": 5.25,
+          "median_delay": 6.0
+        }
+      },
+      "confidence_intervals": {
+        "precision_ci": [
+          0.4797426515803714,
+          0.6257318910773867
+        ],
+        "recall_ci": [
+          0.17748251236929977,
+          0.25115289274248154
+        ],
+        "f1_ci": [
+          0.2607187722111109,
+          0.35184129393701896
+        ],
+        "mean_delay_ci": [
+          1.2921130140722157,
+          2.3297925531914894
+        ]
+      }
+    },
+    "isolation_forest": {
+      "event_precision": 0.6871508379888268,
+      "event_recall": 0.5466666666666666,
+      "event_f1": 0.6089108910891088,
+      "total_failures": 450,
+      "detected_failures": 246,
+      "mean_delay_hours": 1.589430894308943,
+      "median_delay_hours": 0.0,
+      "false_alarms_per_week": 6.396923076923077,
+      "hard_negative_fpr": 0.81,
+      "hard_negative_count": 100,
+      "per_failure": {
+        "default_fill": {
+          "count": 50,
+          "detected": 16,
+          "recall": 0.32,
+          "mean_delay": 6.5625,
+          "median_delay": 6.5
+        },
+        "duplicate_replay": {
+          "count": 50,
+          "detected": 4,
+          "recall": 0.08,
+          "mean_delay": 6.5,
+          "median_delay": 6.5
+        },
+        "join_fanout": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 0.54,
+          "median_delay": 0.0
+        },
+        "orphan_keys": {
+          "count": 50,
+          "detected": 4,
+          "recall": 0.08,
+          "mean_delay": 6.5,
+          "median_delay": 6.5
+        },
+        "partial_load": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 1.08,
+          "median_delay": 0.0
+        },
+        "schema_drift_nulls": {
+          "count": 50,
+          "detected": 18,
+          "recall": 0.36,
+          "mean_delay": 2.7222222222222223,
+          "median_delay": 0.0
+        },
+        "stale_source": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 0.0,
+          "median_delay": 0.0
+        },
+        "timezone_shift": {
+          "count": 50,
+          "detected": 4,
+          "recall": 0.08,
+          "mean_delay": 6.5,
+          "median_delay": 6.5
+        },
+        "unit_scale_slice": {
+          "count": 50,
+          "detected": 50,
+          "recall": 1.0,
+          "mean_delay": 1.56,
+          "median_delay": 1.0
+        }
+      },
+      "confidence_intervals": {
+        "precision_ci": [
+          0.6373869013520831,
+          0.7386752747252747
+        ],
+        "recall_ci": [
+          0.49997288503253795,
+          0.5921724415752364
+        ],
+        "f1_ci": [
+          0.5685528206110526,
+          0.6466382010739856
+        ],
+        "mean_delay_ci": [
+          1.2638885496183205,
+          1.934169816074578
+        ]
+      }
+    },
+    "pipeline_heartbeat": {
+      "event_precision": 0.0,
+      "event_recall": 0.0,
+      "event_f1": 0.0,
+      "total_failures": 450,
+      "detected_failures": 0,
+      "mean_delay_hours": null,
+      "median_delay_hours": null,
+      "false_alarms_per_week": 0.0,
+      "hard_negative_fpr": 0.0,
+      "hard_negative_count": 100,
+      "per_failure": {
+        "default_fill": {
+          "count": 50,
+          "detected": 0,
+          "recall": 0.0,
+          "mean_delay": null,
+          "median_delay": null
+        },
+        "duplicate_replay": {
+          "count": 50,
+          "detected": 0,
+          "recall": 0.0,
+          "mean_delay": null,
+          "median_delay": null
+        },
+        "join_fanout": {
+          "count": 50,
+          "detected": 0,
+          "recall": 0.0,
+          "mean_delay": null,
+          "median_delay": null
+        },
+        "orphan_keys": {
+          "count": 50,
+          "detected": 0,
+          "recall": 0.0,
+          "mean_delay": null,
+          "median_delay": null
+        },
+        "partial_load": {
+          "count": 50,
+          "detected": 0,
+          "recall": 0.0,
+          "mean_delay": null,
+          "median_delay": null
+        },
+        "schema_drift_nulls": {
+          "count": 50,
+          "detected": 0,
+          "recall": 0.0,
+          "mean_delay": null,
+          "median_delay": null
+        },
+        "stale_source": {
+          "count": 50,
+          "detected": 0,
+          "recall": 0.0,
+          "mean_delay": null,
+          "median_delay": null
+        },
+        "timezone_shift": {
+          "count": 50,
+          "detected": 0,
+          "recall": 0.0,
+          "mean_delay": null,
+          "median_delay": null
+        },
+        "unit_scale_slice": {
+          "count": 50,
+          "detected": 0,
+          "recall": 0.0,
+          "mean_delay": null,
+          "median_delay": null
+        }
+      },
+      "confidence_intervals": {
+        "precision_ci": [
+          0.0,
+          0.0
+        ],
+        "recall_ci": [
+          0.0,
+          0.0
+        ],
+        "f1_ci": [
+          0.0,
+          0.0
+        ],
+        "mean_delay_ci": [
+          0.0,
+          0.0
+        ]
+      }
+    }
+  }
+}
