@@ -1,4 +1,4 @@
-﻿"""
+"""
 Comprehensive Unit & Integration Tests for Phase 3:
 Plumbline Coherence Engine and Baselines.
 """
@@ -123,12 +123,17 @@ def test_promo_day_yields_coherent_surge_not_relationship_break(fitted_model, cl
     promo_day_hours = [promo_day * HOURS_PER_DAY + h for h in range(HOURS_PER_DAY)]
 
     metrics_promo = clean_metrics_df[clean_metrics_df["hour_ts"].isin(promo_day_hours)]
+    has_coherent_surge = False
 
     for h in promo_day_hours:
         res = plumbline.score(metrics_promo, h)
         assert res.verdict != "relationship_break", f"Hour {h} incorrectly flagged as relationship_break!"
         assert res.verdict != "source_mismatch", f"Hour {h} incorrectly flagged as source_mismatch!"
         assert res.verdict in ("normal", "coherent_surge")
+        if res.verdict == "coherent_surge":
+            has_coherent_surge = True
+
+    assert has_coherent_surge, "Promo day must produce at least one coherent_surge!"
 
 
 # ==============================================================================
@@ -240,3 +245,4 @@ def test_no_data_leakage_and_model_reuse(tmp_path, clean_metrics_df, fitted_mode
 
     assert r1.verdict == r2.verdict
     assert r1.group == r2.group
+

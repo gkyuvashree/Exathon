@@ -1,4 +1,4 @@
-﻿"""
+"""
 Phase 3 Demo Check: Plumbline + Baselines across 3 scenario hours.
 
 Scenarios:
@@ -87,8 +87,10 @@ def run_demo():
     baselines_clean = baseline_bundle.score(metrics_df, hour_clean)
 
     # Scenario B: Promo day hour on Day 105 (hour 2520)
-    hour_promo = 105 * HOURS_PER_DAY  # 2520
+    hour_promo_prev = 105 * HOURS_PER_DAY + 9  # 2529
+    hour_promo = 105 * HOURS_PER_DAY + 10  # 2530 (peak promo daytime hour)
     plumbline.reset_state()
+    _ = plumbline.score(metrics_df, hour_promo_prev)
     verdict_promo = plumbline.score(metrics_df, hour_promo)
     baselines_promo = baseline_bundle.score(metrics_df, hour_promo)
 
@@ -124,8 +126,8 @@ def run_demo():
 
     scenarios = [
         ("A) Clean Validation (Day 91, h=2184)", verdict_clean, baselines_clean),
-        ("B) Promo Surge (Day 105, h=2520)", verdict_promo, baselines_promo),
-        ("C) Promo + Failure (Day 105, h=2520)", verdict_fail, baselines_fail),
+        ("B) Promo Surge (Day 105, h=2530)", verdict_promo, baselines_promo),
+        ("C) Promo + Failure (Day 105, h=2530)", verdict_fail, baselines_fail),
     ]
 
     for title, v, b in scenarios:
