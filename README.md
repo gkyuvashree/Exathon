@@ -1,189 +1,206 @@
-# Exathon — Data Pipeline & Observability Engine
+# TraceFlow — Data Pipeline Observability Platform
 
-Exathon is a high-performance data engineering and pipeline observability platform with a simulated e-commerce data pipeline, labeled failure injection, automated root-cause detection, and interactive pipeline lineage visualization.
+**Team:** Hack Titans  
+**Hackathon:** ExaThon  
+**Track:** The Work Behind the Work
 
----
+## Overview
 
-## Tech Stack
+TraceFlow is a data pipeline observability platform designed to provide visibility into pipeline health, monitor data quality, identify anomalies, and investigate incidents.
 
-- **Backend**: Python 3.12, FastAPI, Uvicorn, Pydantic v2, DuckDB, Pandas, NumPy, SciPy, PyYAML, Pytest, HTTPX.
-- **Frontend**: Vite, React 18, TypeScript, Tailwind CSS v3.4, `@xyflow/react`, `recharts`, `framer-motion`, `lucide-react`.
-- **API Proxy**: Vite dev server proxies `/api` to `http://localhost:8000`.
+It brings pipeline metrics, incident monitoring, metric exploration, and pipeline lineage into a unified dashboard, helping users understand what is happening across their data workflows.
 
----
+## Key Features
 
-## Repository Layout
+- **System Overview:** Monitor key pipeline health metrics through a centralized dashboard.
+- **Incidents & Anomalies:** View detected anomalies and investigate pipeline incidents.
+- **Metric Explorer:** Explore historical metric trends through interactive charts.
+- **Pipeline Lineage:** Visualize pipeline relationships and dependencies.
+- **Evaluation Benchmark:** Evaluate detection performance using seeded development scenarios.
 
-```
-Exathon/
-├── .gitignore               # Git ignore rules for Python, Node, DBs, and env files
-├── README.md                # Project documentation and quickstart instructions
-├── config/
-│   └── lineage.yaml         # Declarative pipeline DAG lineage specification
-├── scripts/
-│   └── doctor.py            # Diagnostic script verifying runtime, deps, node/npm
-├── backend/
-│   ├── .venv/               # Pinned Python virtual environment
-│   ├── requirements.txt     # Pinned production and test dependencies
-│   ├── config/
-│   │   └── lineage.yaml     # Packaged DAG lineage declaration
-│   ├── app/
-│   │   ├── __init__.py
-│   │   ├── main.py          # FastAPI application with /api/health & CORS
-│   │   └── sim/             # Phase 1 simulation package
-│   │       ├── __init__.py
-│   │       ├── config.py    # Calendar, profiles, promo days, weights
-│   │       ├── generator.py # Vectorized hourly data generator
-│   │       ├── failures.py  # 9 failure injectors & 2 hard negatives
-│   │       ├── event_log.py # SQLite event logger & decoy ops generator
-│   │       ├── pipeline.py  # DuckDB pipeline DAG & control totals
-│   │       └── demo_check.py# Demo comparison & performance benchmark
-│   └── tests/
-│       ├── __init__.py
-│       ├── test_health.py   # Pytest smoke test for health endpoint
-│       └── test_phase1.py   # Comprehensive Phase 1 test suite
-├── frontend/
-│   ├── index.html           # HTML shell
-│   ├── package.json         # Pinned frontend dependencies and scripts
-│   ├── tsconfig.json        # TypeScript configuration
-│   ├── vite.config.ts       # Vite configuration with /api proxy to :8000
-│   ├── tailwind.config.js   # Tailwind CSS v3.4 configuration
-│   ├── postcss.config.js    # PostCSS plugins
-│   └── src/
-│       ├── main.tsx         # React application entrypoint
-│       ├── App.tsx          # Health dashboard, XYFlow lineage & Recharts
-│       ├── index.css        # Tailwind style directives
-│       └── vite-env.d.ts    # Vite client types
-└── docs/
-    ├── phase-0-report.md    # Phase 0 verification report
-    └── phase-1-report.md    # Phase 1 verification report
+## Technology Stack
+
+### Frontend
+- React 18
+- TypeScript
+- Vite
+- Tailwind CSS
+- React Flow
+- Recharts
+- Framer Motion
+- Lucide React
+
+### Backend
+- Python
+- FastAPI
+- SQLite
+- YAML-based configuration
+- Plumbline coherence engine
+
+## Architecture
+
+```text
+                 TraceFlow
+                     |
+          +----------+----------+
+          |                     |
+       Frontend              Backend
+     React + Vite            FastAPI
+          |                     |
+          |              +------+------+
+          |              |             |
+          |           Metrics       Detection
+          |           Storage       Engine
+          |              |             |
+          +--------------+-------------+
+                         |
+                  REST API Endpoints
 ```
 
----
+## API Endpoints
 
-## Quickstart & Verification
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/health` | Backend health status |
+| GET | `/api/overview` | Pipeline overview metrics |
+| GET | `/api/metrics/catalog` | Available metrics |
+| GET | `/api/metrics/timeseries` | Historical metric data |
+| GET | `/api/lineage` | Pipeline lineage information |
+| GET | `/api/incidents` | Incident information |
 
-Run the environment doctor from the repository root:
+## Getting Started
 
-```powershell
-python scripts/doctor.py
-```
+### Prerequisites
 
-Or on bash:
+- Python 3.10+
+- Node.js and npm
+- Git
+
+### 1. Clone the repository
+
 ```bash
-python3 scripts/doctor.py
+git clone https://github.com/gkyuvashree/Exathon.git
+cd Exathon
 ```
 
-All 13 diagnostic checks should report `PASS`.
+### 2. Start the Backend
 
----
-
-## Running Backend
-
-### PowerShell
-
-```powershell
-# Navigate to backend directory
+```bash
 cd backend
 
-# Create virtual environment (if not already created)
 python -m venv .venv
-
-# Activate virtual environment
-.\.venv\Scripts\Activate.ps1
-
-# Install pinned dependencies
-pip install -r requirements.txt
-
-# Run smoke test
-python -m pytest -q
-
-# Start FastAPI development server
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-### Bash
+Activate the virtual environment.
 
-```bash
-# Navigate to backend directory
-cd backend
-
-# Create virtual environment (if not already created)
-python3 -m venv .venv
-
-# Activate virtual environment
-source .venv/bin/activate
-
-# Install pinned dependencies
-pip install -r requirements.txt
-
-# Run smoke test
-python -m pytest -q
-
-# Start FastAPI development server
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
-```
-
-Backend will be available at: `http://localhost:8000/api/health`
-
----
-
-## Running Frontend
-
-### PowerShell
+**Windows PowerShell:**
 
 ```powershell
-# Navigate to frontend directory
-cd frontend
-
-# Install npm dependencies
-npm install
-
-# Run type check and production build
-npx tsc --noEmit
-npm run build
-
-# Start Vite development server
-npm run dev
+.venv\Scripts\Activate.ps1
 ```
 
-### Bash
+Install dependencies:
 
 ```bash
-# Navigate to frontend directory
+pip install -r requirements.txt
+```
+
+Start the server:
+
+```bash
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+Backend runs at:
+
+`http://127.0.0.1:8000`
+
+API documentation:
+
+`http://127.0.0.1:8000/docs`
+
+### 3. Start the Frontend
+
+Open a separate terminal:
+
+```bash
 cd frontend
-
-# Install npm dependencies
 npm install
-
-# Run type check and production build
-npx tsc --noEmit
-npm run build
-
-# Start Vite development server
 npm run dev
 ```
 
-Frontend will be available at: `http://localhost:5173`
-API requests to `/api/*` are automatically proxied to `http://localhost:8000`.
+Frontend runs at:
 
----
+`http://localhost:5173`
 
-## Testing & Quality Gates
+## Testing
 
-1. **Environment Doctor**:
-   ```bash
-   python scripts/doctor.py
-   ```
-2. **Backend Unit & Integration Test Suite**:
-   ```bash
-   cd backend && python -m pytest -q
-   ```
-3. **Simulation Pipeline & Failure Injection Demo**:
-   ```bash
-   cd backend && python -m app.sim.demo_check
-   ```
-4. **Frontend Typecheck & Production Build**:
-   ```bash
-   cd frontend && npx tsc --noEmit && npm run build
-   ```
+### Backend Tests
+
+```bash
+cd backend
+.venv\Scripts\python -m pytest -q
+```
+
+### Frontend Build
+
+```bash
+cd frontend
+npm run build
+```
+
+## Evaluation Benchmark
+
+The development benchmark was evaluated using 50 seeds across 12 scenario types, resulting in 600 scenarios.
+
+| Metric | Result |
+|---|---:|
+| Precision | 0.879 |
+| Recall | 0.842 |
+| F1 Score | 0.860 |
+| False Alarms / Week | 0.2 |
+| Hard-Negative FPR | 51% |
+| Duplicate Replay Recall | 0% |
+| Timezone Shift Recall | 58% |
+
+These results represent the development evaluation and should not be interpreted as production performance.
+
+## Demo & Presentation
+
+- **GitHub Repository:** https://github.com/gkyuvashree/Exathon
+- **Live Demo:** Not currently published
+- **Demo Video:** Not available
+- **Pitch Deck:** To be added
+
+## Repository Structure
+
+```text
+Exathon/
+│
+├── backend/
+│   ├── app/
+│   ├── tests/
+│   ├── config/
+│   └── data/
+│
+├── frontend/
+│   ├── src/
+│   └── public/
+│
+├── reports/
+│
+└── README.md
+```
+
+## Team
+
+**Hack Titans**
+
+Built for ExaThon.
+
+## Notes
+
+- The dashboard uses historical development data.
+- Demonstration incidents may include simulated or seeded scenarios.
+- Benchmark metrics are based on development evaluation.
+- The project should not be described as having a live Exasol integration unless that integration is implemented and verified.
